@@ -6,7 +6,7 @@
 /*   By: dgaillet <dgaillet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 17:21:38 by dgaillet          #+#    #+#             */
-/*   Updated: 2025/11/21 18:57:06 by dgaillet         ###   ########lyon.fr   */
+/*   Updated: 2025/11/23 18:42:45 by dgaillet         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ int	index_of_nl(char *str, int limit)
 	int	i;
 
 	i = 0;
-	while (i < limit)
+	while (i < limit && str[i])
 	{
 		if (str[i] == '\n')
 			return (i);
@@ -52,7 +52,7 @@ char	*ft_strjoin_new(char const *s1, char const *s2, size_t limit)
 		str[i] = s1[i];
 		i++;
 	}
-	while (j <= limit)
+	while (j <= limit && s2[j])
 	{
 		str[i + j] = s2[j];
 		j++;
@@ -86,4 +86,23 @@ char	*ft_substr(char const *s, unsigned int start, size_t len)
 	}
 	sub_str[i] = '\0';
 	return (sub_str);
+}
+
+void	*ft_calloc(size_t nmemb, size_t size)
+{
+	void	*all_mem;
+	size_t	i;
+
+	if (size && nmemb > 65535 / size)
+		return (malloc(0));
+	all_mem = malloc(size * nmemb);
+	if (!all_mem)
+		return (NULL);
+	i = 0;
+	while (i < nmemb * size)
+	{
+		((char *)all_mem)[i] = '\0';
+		i++;
+	}
+	return (all_mem);
 }

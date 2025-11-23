@@ -6,52 +6,75 @@
 /*   By: dgaillet <dgaillet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 17:20:41 by dgaillet          #+#    #+#             */
-/*   Updated: 2025/11/21 19:06:31 by dgaillet         ###   ########lyon.fr   */
+/*   Updated: 2025/11/23 19:08:58 by dgaillet         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 #include <unistd.h>
 
-static char	*ft_read_line(int fd, char *dest, char buf[BUFFER_SIZE])
+static void	ft_bzero(void *s, size_t n)
 {
-	int	readed;
-	int	i;
-
-	readed = 1;
-	while (readed)
+	while (n > 0)
 	{
-		readed = read(fd, buf, BUFFER_SIZE);
-		if (readed < 0)
-			return (NULL);
-		i = index_of_nl(buf, BUFFER_SIZE);
-		if (i < 0)
-			dest = ft_strjoin_new(dest, buf, readed);
-		else
-			dest = ft_strjoin_new(dest, buf, i);
-		if (!dest)
-			return (NULL);
-		if (i >= 0)
-			break ;
+		*((unsigned char *) s) = '\0';
+		s++;
+		n--;
 	}
-	return (dest);
 }
 
-static char	*create_new_line(char buf[BUFFER_SIZE], char *base_str)
+static char	*get_on_line(int fd, char buf[BUFFER_SIZE], char *nl, int res)
 {
-	char	*new_str;
-	int		buf_len;
-	int		nl_i;
+	char	*temp;
 
-	if (!buf)
-		return (NULL);
-	buf_len = ft_strlen(buf);
-	nl_i = index_of_nl(buf, buf_len);
-	if (nl_i >= 0)
+	while (1)
 	{
-		new_str = ft_substr(buf, nl_i, buf_len - nl_i);
-		free(base_str);
-		return (new_str);
+		if (res <= 0)
+			break ;
+		nl = ft_strjoin_new(nl, buf, res);
+		if (!nl)
+			return (NULL);
+		if (index_of_nl(nl, ft_strlen(nl)) >= 0)
+		{
+			temp = ft_substr(nl, 0, index_of_nl(nl, ft_strlen(nl)) + 1);
+			free(nl);
+			if (!temp)
+				return (NULL);
+			return (temp);
+		}
+		ft_bzero(buf, BUFFER_SIZE);
+		res = read(fd, buf, BUFFER_SIZE);
+		if (res <= 0)
+			break ;
+	}
+	return (nl);
+}
+
+static char	*return_full_nl(int fd, char buf[BUFFER_SIZE], char *nl)
+{
+	int		res;
+
+	ft_bzero(buf, BUFFER_SIZE);
+	res = read(fd, buf, BUFFER_SIZE);
+	if (res <= 0)
+	{
+		free(nl);
+		return (NULL);
+	}
+	return (get_on_line(fd, buf, nl, res));
+}
+
+static char	*ft_ptr_match(void *to_search, void *to_match, int limit)
+{
+	int	i;
+
+	i = 0;
+	while (i < limit)
+	{
+		if (to_search == to_match)
+			return (to_search);
+		i++;
+		to_search++;
 	}
 	return (NULL);
 }
@@ -59,23 +82,32 @@ static char	*create_new_line(char buf[BUFFER_SIZE], char *base_str)
 char	*get_next_line(int fd)
 {
 	static char	buf[BUFFER_SIZE];
-	char		*nl;
+	static char	*last_nl;
 	char		*temp;
+	int			nl_i;
 
-	nl = malloc(sizeof(char));
-	if (!nl)
-		return (NULL);
-	temp = create_new_line(buf, nl);
-	if (temp)
-		nl = ft_read_line(fd, temp, buf);
-	else
+	nl_i = -1;
+	if (last_nl)
 	{
-		nl[0] = '\0';
-		nl = ft_read_line(fd, nl, buf);
+		temp = ft_ptr_match(buf, last_nl, BUFFER_SIZE);
+		if (temp)
+			nl_i = index_of_nl(temp + 1, &buf[BUFFER_SIZE] - temp);
+		if (nl_i >= 0)
+		{
+			last_nl = &temp[nl_i + 1];
+			temp = ft_substr(temp, 1, nl_i + 1);
+			return (temp);
+		}
+		temp = ft_substr(temp, 1, &buf[BUFFER_SIZE] - temp);
+		temp = return_full_nl(fd, buf, temp);
 	}
-	return (nl);
+	else
+		temp = return_full_nl(fd, buf, ft_calloc(sizeof(char), 1));
+	if (temp)
+		last_nl = &buf[index_of_nl(buf, BUFFER_SIZE)];
+	return (temp);
 }
-
+/*
 #include <stdio.h>
 #include <fcntl.h>
 
@@ -88,11 +120,13 @@ int	main(int argc, char **argv)
 	{
 		fd = open(argv[1], O_RDONLY);
 		str = get_next_line(fd);
-		printf("%s", str);
-		free(str);
-		str = get_next_line(fd);
-		printf("%s", str);
-		free(str);
+		while (str)
+		{
+			printf("%s", str);
+			free(str);
+			str = get_next_line(fd);
+		}
 		close(fd);
 	}
 }
+*/

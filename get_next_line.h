@@ -6,7 +6,7 @@
 /*   By: dgaillet <dgaillet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 17:22:03 by dgaillet          #+#    #+#             */
-/*   Updated: 2025/11/21 18:57:22 by dgaillet         ###   ########lyon.fr   */
+/*   Updated: 2025/11/23 16:43:49 by dgaillet         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,5 +25,6 @@ int		index_of_nl(char *str, int limit);
 char	*ft_strjoin_new(char const *s1, char const *s2, size_t limit);
 size_t	ft_strlen(const char *s);
 char	*ft_substr(char const *s, unsigned int start, size_t len);
+void	*ft_calloc(size_t nmemb, size_t size);
 
 #endif
