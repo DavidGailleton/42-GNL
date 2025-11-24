@@ -6,11 +6,12 @@
 /*   By: dgaillet <dgaillet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 17:21:38 by dgaillet          #+#    #+#             */
-/*   Updated: 2025/11/23 18:42:45 by dgaillet         ###   ########lyon.fr   */
+/*   Updated: 2025/11/24 14:01:01 by dgaillet         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
+#include <stdint.h>
 
 int	index_of_nl(char *str, int limit)
 {
@@ -93,7 +94,7 @@ void	*ft_calloc(size_t nmemb, size_t size)
 	void	*all_mem;
 	size_t	i;
 
-	if (size && nmemb > 65535 / size)
+	if (size && nmemb > SIZE_MAX / size)
 		return (malloc(0));
 	all_mem = malloc(size * nmemb);
 	if (!all_mem)

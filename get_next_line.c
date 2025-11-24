@@ -6,7 +6,7 @@
 /*   By: dgaillet <dgaillet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 17:20:41 by dgaillet          #+#    #+#             */
-/*   Updated: 2025/11/23 19:08:58 by dgaillet         ###   ########lyon.fr   */
+/*   Updated: 2025/11/24 15:53:55 by dgaillet         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,18 +50,30 @@ static char	*get_on_line(int fd, char buf[BUFFER_SIZE], char *nl, int res)
 	return (nl);
 }
 
-static char	*return_full_nl(int fd, char buf[BUFFER_SIZE], char *nl)
+static char	*return_full_nl(int fd, char buf[BUFFER_SIZE],
+					char *nl, char **last_nl)
 {
 	int		res;
+	char	*temp;
 
+	if (!nl)
+		return (NULL);
 	ft_bzero(buf, BUFFER_SIZE);
 	res = read(fd, buf, BUFFER_SIZE);
+	if (res == 0 && ft_strlen(nl) > 0)
+	{
+		*last_nl = NULL;
+		return (nl);
+	}
 	if (res <= 0)
 	{
 		free(nl);
+		*last_nl = NULL;
 		return (NULL);
 	}
-	return (get_on_line(fd, buf, nl, res));
+	temp = get_on_line(fd, buf, nl, res);
+	*last_nl = &buf[index_of_nl(buf, BUFFER_SIZE)];
+	return (temp);
 }
 
 static char	*ft_ptr_match(void *to_search, void *to_match, int limit)
@@ -98,35 +110,10 @@ char	*get_next_line(int fd)
 			temp = ft_substr(temp, 1, nl_i + 1);
 			return (temp);
 		}
-		temp = ft_substr(temp, 1, &buf[BUFFER_SIZE] - temp);
-		temp = return_full_nl(fd, buf, temp);
+		temp = ft_substr(temp, 1, BUFFER_SIZE);
+		temp = return_full_nl(fd, buf, temp, &last_nl);
 	}
 	else
-		temp = return_full_nl(fd, buf, ft_calloc(sizeof(char), 1));
-	if (temp)
-		last_nl = &buf[index_of_nl(buf, BUFFER_SIZE)];
+		temp = return_full_nl(fd, buf, ft_calloc(sizeof(char), 1), &last_nl);
 	return (temp);
 }
-/*
-#include <stdio.h>
-#include <fcntl.h>
-
-int	main(int argc, char **argv)
-{
-	char	*str;
-	int		fd;
-
-	if (argc > 1)
-	{
-		fd = open(argv[1], O_RDONLY);
-		str = get_next_line(fd);
-		while (str)
-		{
-			printf("%s", str);
-			free(str);
-			str = get_next_line(fd);
-		}
-		close(fd);
-	}
-}
-*/
