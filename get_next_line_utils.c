@@ -6,7 +6,7 @@
 /*   By: dgaillet <dgaillet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 17:21:38 by dgaillet          #+#    #+#             */
-/*   Updated: 2025/11/24 14:01:01 by dgaillet         ###   ########lyon.fr   */
+/*   Updated: 2025/11/25 12:55:35 by dgaillet         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@ int	index_of_nl(char *str, int limit)
 {
 	int	i;
 
+	if (!str)
+		return (-1);
 	i = 0;
 	while (i < limit && str[i])
 	{

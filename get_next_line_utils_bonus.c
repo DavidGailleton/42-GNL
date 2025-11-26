@@ -6,11 +6,27 @@
 /*   By: dgaillet <dgaillet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/24 16:04:39 by dgaillet          #+#    #+#             */
-/*   Updated: 2025/11/24 16:12:37 by dgaillet         ###   ########lyon.fr   */
+/*   Updated: 2025/11/25 15:51:31 by dgaillet         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdlib.h>
+
+int	index_of_nl(char *str, int limit)
+{
+	int	i;
+
+	if (!str)
+		return (-1);
+	i = 0;
+	while (i < limit && str[i])
+	{
+		if (str[i] == '\n')
+			return (i);
+		i++;
+	}
+	return (-1);
+}
 
 size_t	ft_strlen(const char *s)
 {
@@ -48,22 +64,30 @@ char	*ft_strjoin_new(char const *s1, char const *s2, size_t limit)
 	return (str);
 }
 
-char	*ft_strdup(const char *s)
+char	*ft_substr(char const *s, unsigned int start, size_t len)
 {
-	char	*dest;
-	int		i;
+	size_t	i;
+	char	*sub_str;
+	size_t	s_len;
 
-	dest = malloc(sizeof(char) *(ft_strlen(s) + 1));
-	if (!dest)
+	if (!s)
+		return (NULL);
+	s_len = ft_strlen(s);
+	if (start > s_len)
+		len = 0;
+	else if (s_len < (start + len))
+		len = s_len - start;
+	sub_str = malloc(sizeof(char) * (len + 1));
+	if (!sub_str)
 		return (NULL);
 	i = 0;
-	while (s[i])
+	while (i < len)
 	{
-		dest[i] = s[i];
+		sub_str[i] = s[start + i];
 		i++;
 	}
-	dest[i] = '\0';
-	return (dest);
+	sub_str[i] = '\0';
+	return (sub_str);
 }
 
 void	ft_bzero(void *s, size_t n)
