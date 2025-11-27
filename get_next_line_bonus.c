@@ -6,7 +6,7 @@
 /*   By: dgaillet <dgaillet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/24 15:55:25 by dgaillet          #+#    #+#             */
-/*   Updated: 2025/11/26 12:20:50 by dgaillet         ###   ########lyon.fr   */
+/*   Updated: 2025/11/27 17:37:39 by dgaillet         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,30 +37,54 @@ static int	del_before_nl(char buf[BUFFER_SIZE])
 	return (1);
 }
 
+static char	*ft_read_one(char buf[BUFFER_SIZE], int fd, char *str)
+{
+	int	temp;
+
+	str = ft_strjoin_new(str, buf, BUFFER_SIZE);
+	if (!str)
+		return (NULL);
+	ft_bzero(buf, BUFFER_SIZE);
+	temp = read(fd, buf, BUFFER_SIZE);
+	if (temp < 0)
+	{
+		free(str);
+		return (NULL);
+	}
+	if ((!str || ft_strlen(str) == 0) && temp == 0)
+	{
+		free(str);
+		return (NULL);
+	}
+	if (temp == 0)
+		return (str);
+	return (str);
+}
+
 static char	*extract_all_nl(char buf[BUFFER_SIZE], int fd, char *str, int nl_i)
 {
 	int	temp;
 
-	str = ft_substr(buf, 0, BUFFER_SIZE);
 	if (!str)
 		return (NULL);
 	while (nl_i < 0)
 	{
-		str = ft_strjoin_new(str, buf, temp);
-		ft_bzero(buf, BUFFER_SIZE);
-		temp = read(fd, buf, BUFFER_SIZE);
-		if (temp < 0)
-			return (free(str), NULL);
-		if ((!str || ft_strlen(str) == 0) && temp == 0)
-			return (free(str), NULL);
-		if (temp == 0)
+		str = ft_read_one(buf, fd, str);
+		if (!str)
+			return (NULL);
+		nl_i = index_of_nl(buf, BUFFER_SIZE);
+		if (nl_i < 0 && !ft_strlen(buf))
 			return (str);
-		nl_i = index_of_nl(buf, temp);
 	}
 	str = ft_strjoin_new(str, buf, nl_i);
+	if (!str)
+		return (NULL);
 	temp = del_before_nl(buf);
 	if (temp < 0)
-		return (free(str), NULL);
+	{
+		free(str);
+		return (NULL);
+	}
 	return (str);
 }
 
@@ -73,13 +97,13 @@ static char	*ft_gnl_extra(char buf[BUFFER_SIZE], int fd)
 	nl_i = index_of_nl(buf, BUFFER_SIZE);
 	if (nl_i >= 0)
 	{
-		str = ft_substr(buf, 0, nl_i);
+		str = ft_substr(buf, 0, nl_i + 1);
 		temp = del_before_nl(buf);
 		if (temp < 0)
 			return (free(str), NULL);
 	}
 	else
-		str = extract_all_nl(buf, fd, "", nl_i);
+		str = extract_all_nl(buf, fd, ft_substr("", 0, 1), nl_i);
 	return (str);
 }
 
@@ -88,10 +112,12 @@ char	*get_next_line(int fd)
 	static char	strs[1024][BUFFER_SIZE];
 	char		*to_return;
 
+	if (fd < 0)
+		return (NULL);
 	to_return = ft_gnl_extra(strs[fd], fd);
 	return (to_return);
 }
-/*
+
 #include <stdio.h>
 #include <fcntl.h>
 
@@ -99,41 +125,15 @@ int	main(void)
 {
 	char	*str;
 	int		fd1;
-	int		fd2;
-	int		fd3;
 
-	fd1 = open("a.txt", O_RDONLY);
-	fd2 = open("b.txt", O_RDONLY);
-	fd3 = open("c.txt", O_RDONLY);
+	fd1 = open("read_error.txt", O_RDONLY);
 	str = get_next_line(fd1);
+	while (str)
+	{
+		printf("%s", str);
+		free(str);
+		str = get_next_line(fd1);
+	}
 	printf("%s\n", str);
-	free(str);
-	str = get_next_line(fd2);
-	printf("%s\n", str);
-	free(str);
-	str = get_next_line(fd3);
-	printf("%s\n", str);
-	free(str);
-	str = get_next_line(fd1);
-	printf("%s\n", str);
-	free(str);
-	str = get_next_line(fd2);
-	printf("%s\n", str);
-	free(str);
-	str = get_next_line(fd3);
-	printf("%s\n", str);
-	free(str);
-	str = get_next_line(fd1);
-	printf("%s\n", str);
-	free(str);
-	str = get_next_line(fd2);
-	printf("%s\n", str);
-	free(str);
-	str = get_next_line(fd3);
-	printf("%s\n", str);
-	free(str);
-	str = get_next_line(fd1);
-	printf("%s\n", str);
-	free(str);
+	close(fd1);
 }
-*/
