@@ -6,7 +6,7 @@
 /*   By: dgaillet <dgaillet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/24 15:55:25 by dgaillet          #+#    #+#             */
-/*   Updated: 2025/11/27 17:40:04 by dgaillet         ###   ########lyon.fr   */
+/*   Updated: 2025/11/27 18:20:47 by dgaillet         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,24 +117,3 @@ char	*get_next_line(int fd)
 	to_return = ft_gnl_extra(strs[fd], fd);
 	return (to_return);
 }
-/*
-#include <stdio.h>
-#include <fcntl.h>
-
-int	main(void)
-{
-	char	*str;
-	int		fd1;
-
-	fd1 = open("read_error.txt", O_RDONLY);
-	str = get_next_line(fd1);
-	while (str)
-	{
-		printf("%s", str);
-		free(str);
-		str = get_next_line(fd1);
-	}
-	printf("%s\n", str);
-	close(fd1);
-}
-*/

@@ -6,114 +6,114 @@
 /*   By: dgaillet <dgaillet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 17:20:41 by dgaillet          #+#    #+#             */
-/*   Updated: 2025/11/24 15:53:55 by dgaillet         ###   ########lyon.fr   */
+/*   Updated: 2025/11/27 18:19:30 by dgaillet         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 #include <unistd.h>
 
-static void	ft_bzero(void *s, size_t n)
+static int	del_before_nl(char buf[BUFFER_SIZE])
 {
-	while (n > 0)
-	{
-		*((unsigned char *) s) = '\0';
-		s++;
-		n--;
-	}
-}
-
-static char	*get_on_line(int fd, char buf[BUFFER_SIZE], char *nl, int res)
-{
+	int		nl_i;
+	int		i;
 	char	*temp;
 
-	while (1)
+	nl_i = index_of_nl(buf, BUFFER_SIZE);
+	if (nl_i >= 0)
 	{
-		if (res <= 0)
-			break ;
-		nl = ft_strjoin_new(nl, buf, res);
-		if (!nl)
-			return (NULL);
-		if (index_of_nl(nl, ft_strlen(nl)) >= 0)
-		{
-			temp = ft_substr(nl, 0, index_of_nl(nl, ft_strlen(nl)) + 1);
-			free(nl);
-			if (!temp)
-				return (NULL);
-			return (temp);
-		}
+		temp = ft_substr(buf, nl_i + 1, BUFFER_SIZE - nl_i);
+		if (!temp)
+			return (-1);
 		ft_bzero(buf, BUFFER_SIZE);
-		res = read(fd, buf, BUFFER_SIZE);
-		if (res <= 0)
-			break ;
+		i = 0;
+		while (temp[i])
+		{
+			buf[i] = temp[i];
+			i++;
+		}
+		free(temp);
 	}
-	return (nl);
+	return (1);
 }
 
-static char	*return_full_nl(int fd, char buf[BUFFER_SIZE],
-					char *nl, char **last_nl)
+static char	*ft_read_one(char buf[BUFFER_SIZE], int fd, char *str)
 {
-	int		res;
-	char	*temp;
+	int	temp;
 
-	if (!nl)
+	str = ft_strjoin_new(str, buf, BUFFER_SIZE);
+	if (!str)
 		return (NULL);
 	ft_bzero(buf, BUFFER_SIZE);
-	res = read(fd, buf, BUFFER_SIZE);
-	if (res == 0 && ft_strlen(nl) > 0)
+	temp = read(fd, buf, BUFFER_SIZE);
+	if (temp < 0)
 	{
-		*last_nl = NULL;
-		return (nl);
-	}
-	if (res <= 0)
-	{
-		free(nl);
-		*last_nl = NULL;
+		free(str);
 		return (NULL);
 	}
-	temp = get_on_line(fd, buf, nl, res);
-	*last_nl = &buf[index_of_nl(buf, BUFFER_SIZE)];
-	return (temp);
+	if ((!str || ft_strlen(str) == 0) && temp == 0)
+	{
+		free(str);
+		return (NULL);
+	}
+	if (temp == 0)
+		return (str);
+	return (str);
 }
 
-static char	*ft_ptr_match(void *to_search, void *to_match, int limit)
+static char	*extract_all_nl(char buf[BUFFER_SIZE], int fd, char *str, int nl_i)
 {
-	int	i;
+	int	temp;
 
-	i = 0;
-	while (i < limit)
+	if (!str)
+		return (NULL);
+	while (nl_i < 0)
 	{
-		if (to_search == to_match)
-			return (to_search);
-		i++;
-		to_search++;
+		str = ft_read_one(buf, fd, str);
+		if (!str)
+			return (NULL);
+		nl_i = index_of_nl(buf, BUFFER_SIZE);
+		if (nl_i < 0 && !ft_strlen(buf))
+			return (str);
 	}
-	return (NULL);
+	str = ft_strjoin_new(str, buf, nl_i);
+	if (!str)
+		return (NULL);
+	temp = del_before_nl(buf);
+	if (temp < 0)
+	{
+		free(str);
+		return (NULL);
+	}
+	return (str);
+}
+
+static char	*ft_gnl_extra(char buf[BUFFER_SIZE], int fd)
+{
+	int		nl_i;
+	int		temp;
+	char	*str;
+
+	nl_i = index_of_nl(buf, BUFFER_SIZE);
+	if (nl_i >= 0)
+	{
+		str = ft_substr(buf, 0, nl_i + 1);
+		temp = del_before_nl(buf);
+		if (temp < 0)
+			return (free(str), NULL);
+	}
+	else
+		str = extract_all_nl(buf, fd, ft_substr("", 0, 1), nl_i);
+	return (str);
 }
 
 char	*get_next_line(int fd)
 {
 	static char	buf[BUFFER_SIZE];
-	static char	*last_nl;
-	char		*temp;
-	int			nl_i;
+	char		*to_return;
 
-	nl_i = -1;
-	if (last_nl)
-	{
-		temp = ft_ptr_match(buf, last_nl, BUFFER_SIZE);
-		if (temp)
-			nl_i = index_of_nl(temp + 1, &buf[BUFFER_SIZE] - temp);
-		if (nl_i >= 0)
-		{
-			last_nl = &temp[nl_i + 1];
-			temp = ft_substr(temp, 1, nl_i + 1);
-			return (temp);
-		}
-		temp = ft_substr(temp, 1, BUFFER_SIZE);
-		temp = return_full_nl(fd, buf, temp, &last_nl);
-	}
-	else
-		temp = return_full_nl(fd, buf, ft_calloc(sizeof(char), 1), &last_nl);
-	return (temp);
+	if (fd < 0)
+		return (NULL);
+	to_return = ft_gnl_extra(buf, fd);
+	return (to_return);
 }

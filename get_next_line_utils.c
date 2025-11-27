@@ -6,7 +6,7 @@
 /*   By: dgaillet <dgaillet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 17:21:38 by dgaillet          #+#    #+#             */
-/*   Updated: 2025/11/25 12:55:35 by dgaillet         ###   ########lyon.fr   */
+/*   Updated: 2025/11/27 18:06:51 by dgaillet         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,21 +91,12 @@ char	*ft_substr(char const *s, unsigned int start, size_t len)
 	return (sub_str);
 }
 
-void	*ft_calloc(size_t nmemb, size_t size)
+void	ft_bzero(void *s, size_t n)
 {
-	void	*all_mem;
-	size_t	i;
-
-	if (size && nmemb > SIZE_MAX / size)
-		return (malloc(0));
-	all_mem = malloc(size * nmemb);
-	if (!all_mem)
-		return (NULL);
-	i = 0;
-	while (i < nmemb * size)
+	while (n > 0)
 	{
-		((char *)all_mem)[i] = '\0';
-		i++;
+		*((unsigned char *) s) = '\0';
+		s++;
+		n--;
 	}
-	return (all_mem);
 }
