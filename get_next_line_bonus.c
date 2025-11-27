@@ -6,7 +6,7 @@
 /*   By: dgaillet <dgaillet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/24 15:55:25 by dgaillet          #+#    #+#             */
-/*   Updated: 2025/11/27 17:37:39 by dgaillet         ###   ########lyon.fr   */
+/*   Updated: 2025/11/27 17:40:04 by dgaillet         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,7 +117,7 @@ char	*get_next_line(int fd)
 	to_return = ft_gnl_extra(strs[fd], fd);
 	return (to_return);
 }
-
+/*
 #include <stdio.h>
 #include <fcntl.h>
 
@@ -137,3 +137,4 @@ int	main(void)
 	printf("%s\n", str);
 	close(fd1);
 }
+*/
