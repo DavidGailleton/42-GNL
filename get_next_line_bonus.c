@@ -6,7 +6,7 @@
 /*   By: dgaillet <dgaillet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/24 15:55:25 by dgaillet          #+#    #+#             */
-/*   Updated: 2025/11/27 18:20:47 by dgaillet         ###   ########lyon.fr   */
+/*   Updated: 2025/11/28 13:47:24 by dgaillet         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,9 +23,9 @@ static int	del_before_nl(char buf[BUFFER_SIZE])
 	if (nl_i >= 0)
 	{
 		temp = ft_substr(buf, nl_i + 1, BUFFER_SIZE - nl_i);
+		ft_bzero(buf, BUFFER_SIZE);
 		if (!temp)
 			return (-1);
-		ft_bzero(buf, BUFFER_SIZE);
 		i = 0;
 		while (temp[i])
 		{
@@ -88,32 +88,24 @@ static char	*extract_all_nl(char buf[BUFFER_SIZE], int fd, char *str, int nl_i)
 	return (str);
 }
 
-static char	*ft_gnl_extra(char buf[BUFFER_SIZE], int fd)
+char	*get_next_line(int fd)
 {
-	int		nl_i;
-	int		temp;
-	char	*str;
+	static char	bufs[1024][BUFFER_SIZE + 1];
+	int			nl_i;
+	int			temp;
+	char		*str;
 
-	nl_i = index_of_nl(buf, BUFFER_SIZE);
+	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (NULL);
+	nl_i = index_of_nl(bufs[fd], BUFFER_SIZE);
 	if (nl_i >= 0)
 	{
-		str = ft_substr(buf, 0, nl_i + 1);
-		temp = del_before_nl(buf);
+		str = ft_substr(bufs[fd], 0, nl_i + 1);
+		temp = del_before_nl(bufs[fd]);
 		if (temp < 0)
 			return (free(str), NULL);
 	}
 	else
-		str = extract_all_nl(buf, fd, ft_substr("", 0, 1), nl_i);
+		str = extract_all_nl(bufs[fd], fd, ft_substr("", 0, 0), nl_i);
 	return (str);
-}
-
-char	*get_next_line(int fd)
-{
-	static char	strs[1024][BUFFER_SIZE];
-	char		*to_return;
-
-	if (fd < 0)
-		return (NULL);
-	to_return = ft_gnl_extra(strs[fd], fd);
-	return (to_return);
 }

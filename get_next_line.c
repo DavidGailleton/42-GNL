@@ -6,7 +6,7 @@
 /*   By: dgaillet <dgaillet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 17:20:41 by dgaillet          #+#    #+#             */
-/*   Updated: 2025/11/27 18:19:30 by dgaillet         ###   ########lyon.fr   */
+/*   Updated: 2025/11/28 13:47:15 by dgaillet         ###   ########lyon.fr   */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,12 +88,15 @@ static char	*extract_all_nl(char buf[BUFFER_SIZE], int fd, char *str, int nl_i)
 	return (str);
 }
 
-static char	*ft_gnl_extra(char buf[BUFFER_SIZE], int fd)
+char	*get_next_line(int fd)
 {
-	int		nl_i;
-	int		temp;
-	char	*str;
+	static char	buf[BUFFER_SIZE + 1];
+	int			nl_i;
+	int			temp;
+	char		*str;
 
+	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (NULL);
 	nl_i = index_of_nl(buf, BUFFER_SIZE);
 	if (nl_i >= 0)
 	{
@@ -105,15 +108,4 @@ static char	*ft_gnl_extra(char buf[BUFFER_SIZE], int fd)
 	else
 		str = extract_all_nl(buf, fd, ft_substr("", 0, 1), nl_i);
 	return (str);
-}
-
-char	*get_next_line(int fd)
-{
-	static char	buf[BUFFER_SIZE];
-	char		*to_return;
-
-	if (fd < 0)
-		return (NULL);
-	to_return = ft_gnl_extra(buf, fd);
-	return (to_return);
 }
